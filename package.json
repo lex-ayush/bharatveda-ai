@@ -1,0 +1,24 @@
+{
+  "name": "bharatveda-ai",
+  "version": "1.0.0",
+  "description": "BharatVeda AI - Multilingual Ayurvedic Knowledge RAG Assistant powered by Gemini 3.6 Flash & BAAI/bge-small-en-v1.5",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "ayurveda",
+    "rag",
+    "gemini",
+    "health",
+    "india",
+    "embeddings",
+    "vercel"
+  ],
+  "author": "BharatVeda AI",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
