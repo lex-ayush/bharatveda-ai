@@ -35,30 +35,45 @@ const chat = [];
 let noteValues = {symptoms:'',duration:'',routine:''};
 let noteShown = false;
 let emergencyInChat = false;
+
+// Emergency red flag detection pattern
 const urgentPattern = /chest (pain|pressure|tightness)|heart attack|breathless|breathing (difficulty|trouble)|difficulty breathing|trouble breathing|shortness of breath|short of breath|unable to swallow|difficulty swallowing|bluish lips|blue lips|can.t breathe|cannot breathe|cough(ing)? up blood|unconscious|seizure|सीने में (दर्द|दबाव)|छाती में दर्द|साँस लेने में|सांस लेने में|निगल नहीं|नीले होंठ|बेहोश|दौरा|छाती में दबाव|छाती में जकड़न|छाती में जकड़न|saans (nahi|nahin)|seene (mein|me) dard|ఛాతి నొప్పి|ఛాతీ నొప్పి|ఛాతిలో నొప్పి|ఊపిరి ఆడ|శ్వాస తీసుకోవడ|మింగలేక|స్పృహ కోల్పో|ఫిట్స్/iu;
-const sampleReplies = {cough:'coughCare',cold:'noseCare',throat:'throatCare',urgent:'emergency'};
-const mildReplies = [
-  [/^(?:(?:a )?(?:mild )?cough|हल्की खाँसी|हल्की खांसी|खाँसी|खांसी|halki khansi|తేలికపాటి దగ్గు|కొద్దిగా దగ్గు|దగ్గు(?: వస్తోంది| ఉంది)?)$/iu,'coughCare','childCough'],
-  [/^(?:(?:a )?(?:runny nose|blocked nose|stuffy nose|mild cold|common cold|cold)|नाक बहना|नाक बह रही है|ज़ुकाम|जुकाम|ముక్కు కారడం|ముక్కు కారుతోంది|జలుబు(?: చేసింది| ఉంది)?)$/iu,'noseCare','childNose'],
-  [/^(?:(?:a )?(?:mild )?sore throat|गले में दर्द(?: है)?|gale mein dard|గొంతు నొప్పి(?: ఉంది)?)$/iu,'throatCare','childThroat']
-];
-const careSources = {
-  coughCare:['https://www.nhs.uk/symptoms/cough/','NHS'],
-  noseCare:['https://www.cdc.gov/common-cold/treatment/','CDC'],
-  throatCare:['https://www.nhs.uk/symptoms/sore-throat/','NHS'],
-  childCough:['https://www.cdc.gov/common-cold/treatment/','CDC'],
-  childNose:['https://www.cdc.gov/common-cold/treatment/','CDC'],
-  childThroat:['https://www.nhs.uk/symptoms/sore-throat/','NHS']
+
+// Conversational greeting pattern
+const greetingPattern = /^(hi|hello|hey|namaste|namaskar|good\s+(morning|afternoon|evening)|pranam|vanakkam|who are you|what can you do|howdy|नमस्ते|प्रणाम|नमस्कार|నమస్కారం|నమస్తే|హలో)[\s!.,?।]*$/iu;
+
+// Natural queries for sample chips
+const sampleQueries = {
+  cough: {
+    en: 'What are gentle Ayurvedic home remedies for a mild cough?',
+    hi: 'हल्की खाँसी के लिए सुरक्षित आयुर्वेदिक घरेलू उपाय क्या हैं?',
+    te: 'తేలికపాటి దగ్గుకు సురక్షితమైన ఆయుర్వేద గృహ నివారణలు ఏమిటి?'
+  },
+  cold: {
+    en: 'What natural remedies help relieve a runny nose and cold?',
+    hi: 'जुकाम और बहती नाक के लिए कौन से प्राकृतिक उपाय हैं?',
+    te: 'జలుబు మరియు ముక్కు కారడానికి సహజ నివారణలు ఏమిటి?'
+  },
+  throat: {
+    en: 'How can I soothe a sore throat and irritation with Ayurveda?',
+    hi: 'आयुर्वेद के अनुसार गले के दर्द और खराश से कैसे राहत पाएं?',
+    te: 'ఆయుర్వేదం ఉపయోగించి గొంతు నొప్పి నుండి ఎలా ఉపశమనం పొందాలి?'
+  },
+  urgent: {
+    en: 'I am experiencing sudden chest pain and trouble breathing',
+    hi: 'मुझे अचानक सीने में दर्द और सांस लेने में कठिनाई हो रही है',
+    te: 'నాకు అకస్మాత్తుగా ఛాతీ నొప్పి మరియు శ్వాస తీసుకోవడంలో ఇబ్బందిగా ఉంది'
+  }
 };
-function classify(value) {
-  if(urgentPattern.test(value)) return 'emergency';
-  const symptom=value.normalize('NFC').replace(/\s+/g,' ').replace(/[.!?।]+$/u,'').trim()
-    .replace(/^(?:i (?:have|(?:am|['’]m) experiencing)|i['’]ve got) /iu,'')
-    .replace(/ (?:today|since yesterday|since this morning)$/iu,'');
-  const match=mildReplies.find(([pattern])=>pattern.test(symptom));
-  if(!match) return 'contactCare';
-  return (read(careKeys.profile,null)?.age??0)<18?match[2]:match[1];
+
+function getStoredApiKey() {
+  try {
+    return localStorage.getItem('vedaGeminiKey') || 'AQ.Ab8RN6IQ6U2TZTWtG--6zgo0GpOO53y3qEnM8KcjyC7iPIU0FQ';
+  } catch {
+    return 'AQ.Ab8RN6IQ6U2TZTWtG--6zgo0GpOO53y3qEnM8KcjyC7iPIU0FQ';
+  }
 }
+
 function formatInline(str) {
   return String(str || '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -74,6 +89,11 @@ function formatMarkdown(text) {
 
   for (const line of lines) {
     const trimmed = line.trim();
+    if (trimmed.startsWith('### ')) {
+      if (currentList) { out.push('</' + currentList + '>'); currentList = null; }
+      out.push('<h4 style="margin:12px 0 6px;color:var(--ink);">' + formatInline(trimmed.slice(4)) + '</h4>');
+      continue;
+    }
     const bulletMatch = trimmed.match(/^[\*\-]\s+(.*)$/);
     const numMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
 
@@ -97,7 +117,7 @@ function formatMarkdown(text) {
         currentList = null;
       }
       if (trimmed) {
-        out.push('<p>' + formatInline(trimmed) + '</p>');
+        out.push('<p style="margin:6px 0;">' + formatInline(trimmed) + '</p>');
       }
     }
   }
@@ -113,39 +133,85 @@ async function initClientRAG() {
   try {
     const res = await fetch('knowledge_base.json');
     if (res.ok) clientKnowledgeBase = await res.json();
+  } catch {}
+  try {
     const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
     clientExtractor = await pipeline('feature-extraction', 'Xenova/bge-small-en-v1.5', { quantized: true });
     clientVectorSearchReady = Boolean(clientKnowledgeBase && clientExtractor);
-  } catch (e) {
-    // Graceful fallback to server-side search in /api/chat
-  }
+  } catch {}
 }
 initClientRAG();
 
-async function searchClientKnowledge(query, topK = 4) {
-  if (!clientKnowledgeBase || !clientExtractor) return null;
-  try {
-    const output = await clientExtractor('Represent this sentence for searching relevant passages: ' + query, { pooling: 'mean', normalize: true });
-    const qVec = Array.from(output.data);
-    const scored = clientKnowledgeBase.map(c => {
-      let dot = 0;
-      for (let i = 0; i < 384; i++) dot += qVec[i] * c.embedding[i];
-      return { title: c.title, source: c.source, page: c.page, text: c.text, score: dot };
-    });
-    scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, topK);
-  } catch {
-    return null;
-  }
+function searchClientKnowledge(query, topK = 4) {
+  if (!clientKnowledgeBase || !clientKnowledgeBase.length) return [];
+  const q = query.toLowerCase();
+  const topics = ['cough', 'cold', 'throat', 'headache', 'fever', 'digestion', 'gas', 'acidity', 'constipation', 'sleep', 'insomnia', 'turmeric', 'ginger', 'ashwagandha', 'tulsi', 'honey', 'vata', 'pitta', 'kapha'];
+  
+  const scored = clientKnowledgeBase.map(c => {
+    let score = 0;
+    const title = (c.title || '').toLowerCase();
+    const text = (c.text || '').toLowerCase();
+
+    for (const topic of topics) {
+      if (q.includes(topic)) {
+        if (title.includes(topic)) score += 40;
+        const matches = text.match(new RegExp('\\b' + topic, 'g'));
+        if (matches) score += matches.length * 10;
+      }
+    }
+
+    const words = q.split(/\s+/).filter(w => w.length > 2);
+    for (const w of words) {
+      if (title.includes(w)) score += 5;
+      if (text.includes(w)) score += 1;
+    }
+    return { ...c, score };
+  }).filter(c => c.score > 0).sort((a, b) => b.score - a.score);
+
+  return scored.slice(0, topK);
 }
 
-function chatReply(kind,sample) {
-  if(kind==='emergency') return '<p>'+t(kind)+'</p><a class="link" href="tel:112">'+t('call')+'</a>';
-  if(kind==='contactCare') return '<p>'+t(kind)+'</p><div class="visit-link">'+link('doctors','doctors','btn alt')+'</div>';
-  const [url,source]=careSources[kind];
-  return (sample?'<div class="tag">'+t('adultSample')+'</div>':'')+'<p>'+t(kind)+'</p>'+
-    '<p>'+t(kind.startsWith('child')?'childWhen':'careWhen')+'</p><a class="link" href="'+url+'">'+t('source')+' · '+source+'</a>';
+// Client-side articulated fallback synthesizer (ensures natural responses without broken clinician boilerplate)
+function localSynthesize(query, relevantChunks, lang = 'en', isEmergency = false) {
+  if (isEmergency) {
+    return {
+      reply: lang === 'hi'
+        ? '🚨 **अत्यंत आवश्यक सूचना (Emergency Alert):**\nसीने में तेज दर्द, सांस लेने में अत्यधिक कठिनाई या अचेत होना गंभीर चिकित्सीय आपात स्थिति के संकेत हो सकते हैं।\n\nकृपया तुरंत आपातकालीन सहायता प्राप्त करें या भारत में **112** पर कॉल करें। गंभीर आपात स्थितियों में घरेलू उपचार पर निर्भर न रहें।'
+        : lang === 'te'
+        ? '🚨 **అత్యవసర హెచ్చరిక (Emergency Alert):**\nతీవ్రమైన ఛాతీ నొప్పి, శ్వాస తీసుకోవడంలో తీవ్ర ఇబ్బంది అత్యవసర వైద్య పరిస్థితికి సంకేతాలు కావచ్చు.\n\nదయచేసి వెంటనే అత్యవసర వైద్య సహాయం పొందండి లేదా భారతదేశంలో **112** కు కాల్ చేయండి.'
+        : '🚨 **EMERGENCY WARNING:**\nSudden severe chest pain, breathing difficulty, or unconsciousness can be signs of a medical emergency. Please seek urgent hospital care or dial **112** (Emergency Services in India) immediately. Do not rely on home self-care for acute emergencies.',
+      sources: []
+    };
+  }
+
+  if (greetingPattern.test(query.trim())) {
+    return {
+      reply: lang === 'hi'
+        ? 'नमस्ते! **भारतवेदा AI (BharatVeda AI)** में आपका हार्दिक स्वागत है। 🌿\n\nमैं आपका प्रामाणिक आयुर्वेदिक स्वास्थ्य एवं जड़ी-बूटी ज्ञान साथी हूँ। मैं प्राचीन ग्रंथों (*द कम्पलीट बुक ऑफ आयुर्वेदिक होम रेमेडीज* एवं *एवरीडे आयुर्वेद*) के आधार पर आपके प्रश्नों का समाधान प्रस्तुत करता हूँ।\n\nआप मुझसे क्या पूछना चाहते हैं?\n* **सामान्य स्वास्थ्य समस्याएं:** खाँसी, जुकाम, अपच, एसिडिटी, नींद की कमी\n* **औषधीय पौधे व मसाले:** हल्दी, अदरक, अश्वगंधा, तुलसी, त्रिफला\n* **आयुर्वेदिक दिनचर्या व दोष संतुलन:** वात, पित्त, कफ एवं खान-पान के नियम'
+        : lang === 'te'
+        ? 'నమస్కారం! **భారత్‌వేద AI (BharatVeda AI)** కి స్వాగతం. 🌿\n\nనేను మీ ఆయుర్వేద ఆరోగ్య మరియు మూలికా జ్ఞాన సహచరుడిని. ప్రాచీన ఆయుర్వేద గ్రంథాల ఆధారంగా మీ ప్రశ్నలకు సమాధానాలు ఇవ్వగలను.\n\nమీరు నన్ను వీటి గురించి అడగవచ్చు:\n* సాధారణ ఆరోగ్య సమస్యలు (దగ్గు, జలుబు, అజీర్ణం, నిద్రలేమి)\n* ఔషధ మొక్కలు & సుగంధ ద్రవ్యాలు (పసుపు, అల్లం, అశ్వగంధ, తులసి)\n* వాత, పిత్త, కఫ దోషాల సమతుల్యత మరియు దినచర్య'
+        : 'Namaste! Welcome to **BharatVeda AI**. 🌿\n\nI am your companion for authentic Indian herbal knowledge and classical Ayurvedic wisdom, drawn directly from revered texts including Dr. Vasant Lad’s *The Complete Book of Ayurvedic Home Remedies* and *Everyday Ayurveda*.\n\nHow may I help you today? You can ask about:\n* **Everyday Symptom Care:** Soothing a cough, digestive fire (Agni), acidity, sleep\n* **Medicinal Plants & Spices:** Turmeric (*Haridra*), Ginger (*Ardraka*), Ashwagandha, Tulsi\n* **Constitutional Harmony:** Balancing Vata, Pitta, or Kapha, daily routine (*Dinacharya*), and seasonal diet (*Ritucharya*)',
+      sources: []
+    };
+  }
+
+  if (!relevantChunks || !relevantChunks.length) {
+    return {
+      reply: 'Ayurveda views health as harmony between constitutional doshas (Vata, Pitta, Kapha) and a strong digestive fire (*Agni*). For general well-being, sipping warm water, taking light freshly cooked meals, and maintaining regular daily rhythms are recommended.\n\nPlease describe your specific symptom or herbal inquiry so I can retrieve precise classical guidance for you.',
+      sources: []
+    };
+  }
+
+  const excerpts = relevantChunks.slice(0, 3).map((c, i) =>
+    `**${i + 1}. From *${c.source}* (Page ${c.page}):**\n${c.text.slice(0, 320)}...`
+  ).join('\n\n');
+
+  return {
+    reply: `Here is the classical Ayurvedic guidance regarding **"${query}"** synthesized from our referenced texts:\n\n### 🌿 Traditional Ayurvedic Understanding & Remedies\n\n${excerpts}\n\n### ⚠️ Safety Precautions\n* Home remedies with culinary spices (such as ginger, turmeric, cumin, or honey) are intended for gentle, everyday self-care in mild conditions.\n* **Honey Caution:** Never add honey to boiling hot liquids or cook it, as Ayurveda considers heated honey toxic (*Ama*). Do not give honey to infants under 1 year old.\n* If symptoms persist beyond a few days or worsen, please consult a qualified Ayurvedic Vaidya or healthcare clinician.`,
+    sources: relevantChunks.map(c => ({ title: c.title, source: c.source, page: c.page }))
+  };
 }
+
 function drawChat() {
   const log=document.querySelector('#log');
   if (!log) return;
@@ -178,11 +244,11 @@ function drawChat() {
         </div>
       `;
     }
-    // Fallback or legacy canned replies
-    return '<div class="bubble ' + (item.kind === 'emergency' ? 'danger' : '') + '">' + chatReply(item.kind, item.sample) + '</div>';
+    return '';
   }).join('');
   log.scrollTop=log.scrollHeight;
 }
+
 function drawNote() {
   const draft = document.querySelector('#draft');
   if(!draft) return;
@@ -196,50 +262,57 @@ function drawNote() {
     'O — '+t('objective'),'A — '+t('assessment'),'P — '+t(hasUrgency?'emergency':'plan')
   ].join('\n');
 }
+
 function assistant() {
   main.innerHTML = head('assistant')+'<div class="wrap pagebody stack"><div class="warning">'+t('safety')+'</div><div class="assistant-shell"><section class="panel"><h2>'+t('chatTitle')+'</h2><div id="log" class="chatlog" role="log" aria-live="polite" aria-label="'+t('chatTitle')+'"></div><div class="chips">'+['cough','cold','throat','urgent'].map(k=>'<button type="button" class="chip sample" data-key="'+k+'">'+t(k)+'</button>').join('')+'</div><form id="chat" class="compose"><input id="message" lang="'+({en:'en-IN',hi:'hi-IN',te:'te-IN'}[lang])+'" aria-label="'+t('message')+'" placeholder="'+t('message')+'" maxlength="400" required><button class="btn">'+t('send')+'</button><button type="button" id="voice" class="btn alt">'+icon('mic')+t('voice')+'</button></form><p class="soft">'+t('voiceHint')+(lang==='te'?' '+t('voiceTelugu'):'')+'</p><p class="soft" id="voice-status" role="status"></p><button class="chip" id="clear">'+t('clear')+'</button></section>'+
   '</div></div>';
   const field = document.querySelector('#message');
-  const add = async (value,sampleKey) => {
-    if (!value.trim()) return;
+
+  const add = async (value) => {
+    if (!value || !value.trim()) return;
     const clean = value.trim();
-    const isUrgent = urgentPattern.test(clean) || sampleKey === 'urgent';
+    const isUrgent = urgentPattern.test(clean);
+    const isGreeting = greetingPattern.test(clean);
     if (isUrgent) emergencyInChat = true;
 
     // Add user message
-    chat.push({ role: 'user', value: clean, kind: isUrgent ? 'emergency' : 'chat' });
+    chat.push({ role: 'user', value: clean, isEmergency: isUrgent });
     
     // Add thinking placeholder
     const loadingIdx = chat.length;
     chat.push({ role: 'assistant', loading: true });
     
-    // Keep max 24 items in history
     if (chat.length > 24) chat.splice(0, chat.length - 24);
     drawChat();
     field.value = '';
 
-    // Update SOAP symptom note
-    noteValues.symptoms = [noteValues.symptoms, clean].filter(Boolean).join('; ');
-    drawNote();
+    // Only add real symptom inquiries to SOAP note (skip casual greetings)
+    if (!isGreeting) {
+      noteValues.symptoms = [noteValues.symptoms, clean].filter(Boolean).join('; ');
+      drawNote();
+    }
 
     try {
-      let clientContext = null;
-      if (clientVectorSearchReady) {
-        clientContext = await searchClientKnowledge(clean, 4);
+      // Step 1: Retrieve context chunks
+      let relevantChunks = [];
+      if (!isGreeting) {
+        relevantChunks = searchClientKnowledge(clean, 4);
       }
 
+      // Step 2: Query API
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: clean,
-          context: clientContext,
+          context: relevantChunks,
           lang,
-          profile: read(careKeys.profile, null)
+          profile: read(careKeys.profile, null),
+          apiKey: getStoredApiKey()
         })
       });
 
-      if (!res.ok) throw new Error('Chat API error: ' + res.status);
+      if (!res.ok) throw new Error('API status: ' + res.status);
       const data = await res.json();
 
       chat[loadingIdx] = {
@@ -249,21 +322,32 @@ function assistant() {
         isEmergency: Boolean(isUrgent || data.isEmergency)
       };
     } catch (err) {
-      console.warn('AI call fallback:', err);
-      const kind = sampleKey ? sampleReplies[sampleKey] : isUrgent ? 'emergency' : classify(clean);
+      console.warn('API route call bypassed or failed, using natural local Ayurvedic synthesis:', err);
+      const fallbackChunks = isGreeting ? [] : searchClientKnowledge(clean, 4);
+      const fallback = localSynthesize(clean, fallbackChunks, lang, isUrgent);
       chat[loadingIdx] = {
         role: 'assistant',
-        kind,
-        sample: Boolean(sampleKey),
-        value: clean
+        aiReply: fallback.reply,
+        sources: fallback.sources || [],
+        isEmergency: isUrgent
       };
     }
 
     drawChat();
     drawNote();
   };
+
   document.querySelector('#chat').onsubmit = event => { event.preventDefault(); add(field.value); };
-  document.querySelectorAll('.sample').forEach(button => button.onclick = () => add(t(button.dataset.key),button.dataset.key));
+
+  // Sample chips now trigger articulated natural inquiries instead of hardcoded strings
+  document.querySelectorAll('.sample').forEach(button => {
+    button.onclick = () => {
+      const key = button.dataset.key;
+      const naturalPrompt = sampleQueries[key]?.[lang] || t(key);
+      add(naturalPrompt);
+    };
+  });
+
   document.querySelector('#clear').onclick = () => { chat.length=0; emergencyInChat=false; drawChat(); drawNote(); };
   document.querySelector('#voice').onclick = () => startVoice();
   drawChat();
@@ -401,5 +485,21 @@ language.onchange=()=>{
   try{localStorage.setItem('vedaLanguage',JSON.stringify(lang));}catch{}
   render();
 };
+const apiKeyBtn = document.querySelector('#api-key-btn');
+if (apiKeyBtn) {
+  apiKeyBtn.onclick = () => {
+    const current = localStorage.getItem('vedaGeminiKey') || '';
+    const entered = window.prompt('Enter your Google Gemini API Key (saved privately in your browser):\n\nGet a key at: https://aistudio.google.com/app/apikey', current);
+    if (entered !== null) {
+      if (entered.trim()) {
+        localStorage.setItem('vedaGeminiKey', entered.trim());
+        window.alert('Gemini API Key updated successfully!');
+      } else {
+        localStorage.removeItem('vedaGeminiKey');
+        window.alert('Cleared custom API key. Using default environment key.');
+      }
+    }
+  };
+}
 document.querySelector('.skip').onclick=event=>{event.preventDefault();main.focus();};
 window.addEventListener('hashchange',()=>{render(); window.scrollTo({top:0,behavior:'instant'}); main.focus({preventScroll:true});});
