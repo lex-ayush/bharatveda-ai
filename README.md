@@ -9,9 +9,7 @@ BharatVeda AI is an educational healthcare and botanical intelligence web applic
 ## 🚀 Key Features
 
 - **⚡ Cloud RAG with `gemini-3.5-flash-lite`**:
-  Answers health inquiries using context retrieved directly from classical literature:
-  - *The Complete Book of Ayurvedic Home Remedies* (Dr. Vasant Lad)
-  - *Everyday Ayurveda – A Practical Guide to Healthy Living*
+  Answers health inquiries using context retrieved directly from classical literatures.
 - **🎯 BAAI/bge-small-en-v1.5 Embeddings**:
   Semantic search over 900+ curated Ayurvedic knowledge chunks.
 - **🌐 Multilingual**:
