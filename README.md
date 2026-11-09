@@ -71,8 +71,8 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
    ```
 2. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
 3. Import your **BharatVeda-AI** repository.
-4. (Optional) Add your Environment Variable:
-   - `GEMINI_API_KEY`: `AQ.Ab8RN6IXaGvZUbUl8HS4w4_uFfkOdqqKTgOTuzAv3o2FackjKg`
+4. Add your Environment Variable in Vercel settings (or locally in `.env`):
+   - `GEMINI_API_KEY`: `your_gemini_api_key_here`
 5. Click **Deploy**. Vercel will finish in under 30 seconds!
 
 ### Option 2: Via Vercel CLI

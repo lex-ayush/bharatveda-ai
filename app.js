@@ -68,9 +68,9 @@ const sampleQueries = {
 
 function getStoredApiKey() {
   try {
-    return localStorage.getItem('vedaGeminiKey') || 'AQ.Ab8RN6IXaGvZUbUl8HS4w4_uFfkOdqqKTgOTuzAv3o2FackjKg';
+    return localStorage.getItem('vedaGeminiKey') || '';
   } catch {
-    return 'AQ.Ab8RN6IXaGvZUbUl8HS4w4_uFfkOdqqKTgOTuzAv3o2FackjKg';
+    return '';
   }
 }
 
