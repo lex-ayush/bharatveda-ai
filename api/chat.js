@@ -17,7 +17,6 @@ function getKnowledgeBase() {
   return knowledgeBase || [];
 }
 
-// Tokenizer & stop words for server-side hybrid retrieval
 const STOP_WORDS = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he',
   'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 'were',
@@ -34,10 +33,8 @@ function tokenize(text) {
     .filter(w => w.length > 2 && !STOP_WORDS.has(w));
 }
 
-// Check if message is a simple conversational greeting
 const GREETING_REGEX = /^(hi|hello|hey|namaste|namaskar|good\s+(morning|afternoon|evening)|pranam|vanakkam|who are you|what can you do|howdy|नमस्ते|प्रणाम|नमस्कार|నమస్కారం|నమస్తే|హలో)[\s!.,?।]*$/iu;
 
-// BM25-style keyword search across knowledge chunks
 function searchKnowledge(query, topK = 4) {
   const kb = getKnowledgeBase();
   if (!kb.length) return [];
@@ -48,7 +45,7 @@ function searchKnowledge(query, topK = 4) {
 
   const queryTerms = tokenize(query);
   const lowerQuery = query.toLowerCase();
-  const topics = ['cough', 'cold', 'throat', 'headache', 'fever', 'digestion', 'gas', 'acidity', 'constipation', 'sleep', 'insomnia', 'turmeric', 'ginger', 'ashwagandha', 'tulsi', 'honey', 'vata', 'pitta', 'kapha', 'skin', 'joint', 'pain', 'backache'];
+  const topics = ['cough', 'cold', 'throat', 'headache', 'fever', 'digestion', 'gas', 'acidity', 'constipation', 'sleep', 'insomnia', 'fear', 'anxiety', 'stress', 'turmeric', 'ginger', 'ashwagandha', 'tulsi', 'honey', 'vata', 'pitta', 'kapha', 'skin', 'joint', 'pain', 'backache'];
 
   const scored = kb.map(chunk => {
     const title = (chunk.title || '').toLowerCase();
@@ -82,47 +79,47 @@ function searchKnowledge(query, topK = 4) {
   return scored.filter(s => s.score > 0).slice(0, topK);
 }
 
-// Emergency red flag pattern
 const URGENT_REGEX = /chest (pain|pressure|tightness)|heart attack|breathless|breathing (difficulty|trouble)|difficulty breathing|trouble breathing|shortness of breath|short of breath|unable to swallow|difficulty swallowing|bluish lips|blue lips|can.t breathe|cannot breathe|cough(ing)? up blood|unconscious|seizure|सीने में (दर्द|दबाव)|छाती में दर्द|साँस लेने में|सांस लेने में|निगल नहीं|नीले होंठ|बेहोश|दौरा|छाती में दबाव|छाती में जकड़न|छाती में जकड़न|saans (nahi|nahin)|seene (mein|me) dard|ఛాతి నొప్పి|ఛాతీ నొప్పి|ఛాతిలో నొప్పి|ఊపిరి ఆడ|శ్వాస తీసుకోవడ|మింగలేక|స్పృహ కోల్పో|ఫిట్స్/i;
 
-// Fallback intelligent knowledge synthesizer
+// Fallback intelligent natural voice synthesizer (no robotic prefixes, no repetitive boilerplate)
 function localSynthesize(query, relevantChunks, lang = 'en', isEmergency = false) {
   if (isEmergency) {
     return {
       reply: lang === 'hi'
-        ? `🚨 **अत्यंत आवश्यक सूचना (Emergency Alert):**\nसीने में तेज दर्द, सांस लेने में अत्यधिक कठिनाई या अचेत होना गंभीर चिकित्सीय आपात स्थिति के संकेत हो सकते हैं।\n\nकृपया तुरंत आपातकालीन सहायता प्राप्त करें या भारत में **112** पर कॉल करें। गंभीर आपात स्थितियों में घरेलू उपचार पर निर्भर न रहें।`
+        ? `🚨 **अत्यंत आवश्यक सूचना (Emergency):**\nसीने में तेज दर्द, सांस लेने में अत्यधिक कठिनाई या अचेत होना गंभीर चिकित्सीय आपात स्थिति के संकेत हो सकते हैं।\n\nकृपया तुरंत नज़दीकी अस्पताल जाएँ या भारत में **112** पर कॉल करें। आपातकालीन स्थिति में घरेलू उपायों पर निर्भर न रहें।`
         : lang === 'te'
-        ? `🚨 **అత్యవసర హెచ్చరిక (Emergency Alert):**\nతీవ్రమైన ఛాతీ నొప్పి, శ్వాస తీసుకోవడంలో తీవ్ర ఇబ్బంది అత్యవసర వైద్య పరిస్థితికి సంకేతాలు కావచ్చు.\n\nదయచేసి వెంటనే అత్యవసర వైద్య సహాయం పొందండి లేదా భారతదేశంలో **112** కు కాల్ చేయండి.`
-        : `🚨 **EMERGENCY WARNING:**\nSudden severe chest pain, breathing difficulty, or unconsciousness can be signs of a medical emergency. Please seek urgent hospital care or dial **112** (Emergency Services in India) immediately. Do not rely on home self-care for acute emergencies.`
+        ? `🚨 **అత్యవసర హెచ్చరిక (Emergency):**\nతీవ్రమైన ఛాతీ నొప్పి, శ్వాస తీసుకోవడంలో తీవ్ర ఇబ్బంది అత్యవసర పరిస్థితికి సంకేతాలు కావచ్చు.\n\nదయచేసి వెంటనే సమీప ఆసుపత్రికి వెళ్లండి లేదా భారతదేశంలో **112** కు కాల్ చేయండి.`
+        : `🚨 **EMERGENCY WARNING:**\nSudden severe chest pain, breathing difficulty, or unconsciousness are signs of an acute medical emergency. Please seek immediate hospital care or call **112** in India immediately.`
     };
   }
 
   if (GREETING_REGEX.test(query.trim())) {
     return {
       reply: lang === 'hi'
-        ? `नमस्ते! **भारतवेदा AI (BharatVeda AI)** में आपका हार्दिक स्वागत है। 🌿\n\nमैं आपका प्रामाणिक आयुर्वेदिक स्वास्थ्य एवं जड़ी-बूटी ज्ञान साथी हूँ। मैं प्राचीन ग्रंथों (*द कम्पलीट बुक ऑफ आयुर्वेदिक होम रेमेडीज* एवं *एवरीडे आयुर्वेद*) के आधार पर आपके प्रश्नों का समाधान प्रस्तुत करता हूँ।\n\nआप मुझसे क्या पूछना चाहते हैं?\n* **सामान्य स्वास्थ्य समस्याएं:** खाँसी, जुकाम, अपच, एसिडिटी, नींद की कमी\n* **औषधीय पौधे व मसाले:** हल्दी, अदरक, अश्वगंधा, तुलसी, त्रिफला\n* **आयुर्वेदिक दिनचर्या व दोष संतुलन:** वात, पित्त, कफ एवं खान-पान के नियम`
+        ? `नमस्ते! मैं भारतवेदा AI हूँ, आपका आत्मीय आयुर्वेदिक स्वास्थ्य साथी। 🌿\n\nआप कैसा महसूस कर रहे हैं? आप मुझसे किसी भी लक्षण, जड़ी-बूटी (जैसे हल्दी, अदरक, अश्वगंधा) या दोष संतुलन के बारे में निसंकोच पूछ सकते हैं। मैं आपकी क्या मदद कर सकता हूँ?`
         : lang === 'te'
-        ? `నమస్కారం! **భారత్‌వేద AI (BharatVeda AI)** కి స్వాగతం. 🌿\n\nనేను మీ ఆయుర్వేద ఆరోగ్య మరియు మూలికా జ్ఞాన సహచరుడిని. ప్రాచీన ఆయుర్వేద గ్రంథాల ఆధారంగా మీ ప్రశ్నలకు సమాధానాలు ఇవ్వగలను.\n\nమీరు నన్ను వీటి గురించి అడగవచ్చు:\n* సాధారణ ఆరోగ్య సమస్యలు (దగ్గు, జలుబు, అజీర్ణం, నిద్రలేమి)\n* ఔషధ మొక్కలు & సుగంధ ద్రవ్యాలు (పసుపు, అల్లం, అశ్వగంధ, తులసి)\n* వాత, పిత్త, కఫ దోషాల సమతుల్యత మరియు దినచర్య`
-        : `Namaste! Welcome to **BharatVeda AI**. 🌿\n\nI am your companion for authentic Indian herbal knowledge and classical Ayurvedic wisdom, drawn directly from revered texts including Dr. Vasant Lad’s *The Complete Book of Ayurvedic Home Remedies* and *Everyday Ayurveda*.\n\nHow may I help you today? You can ask about:\n* **Everyday Symptom Care:** Soothing a cough, digestive fire (Agni), acidity, sleep\n* **Medicinal Plants & Spices:** Turmeric (*Haridra*), Ginger (*Ardraka*), Ashwagandha, Tulsi\n* **Constitutional Harmony:** Balancing Vata, Pitta, or Kapha, daily routine (*Dinacharya*), and seasonal diet (*Ritucharya*)`
+        ? `నమస్కారం! నేను భారత్‌వేద AI, మీ ఆయుర్వేద ఆరోగ్య సహచరుడిని. 🌿\n\nమీరు ఎలా ఉన్నారు? ఏదైనా లక్షణం, ఔషధ మూలికలు (పసుపు, అల్లం, అశ్వగంధ) లేదా ఆరోగ్య సందేహాల గురించి నన్ను అడగవచ్చు. ఈ రోజు నేను మీకు ఎలా సహాయపడగలను?`
+        : `Namaste! I am BharatVeda AI, your Ayurvedic health and wellness companion. 🌿\n\nHow are you feeling today? You can ask me anything about everyday symptoms, healing herbs like ginger, turmeric, or ashwagandha, or how to balance your mind and body. How can I help you?`
     };
   }
 
-  if (!relevantChunks || !relevantChunks.length) {
+  const lowerQuery = query.toLowerCase();
+  if (lowerQuery.includes('fear') || lowerQuery.includes('anxiety') || lowerQuery.includes('scared') || lowerQuery.includes('डर') || lowerQuery.includes('घबराहट')) {
     return {
       reply: lang === 'hi'
-        ? `आयुर्वेद में स्वास्थ्य का आधार शरीर, मन और दोषों (वात, पित्त, कफ) का संतुलन है। अपने आहार में हल्का और सुपाच्य भोजन लें, गुनगुना पानी पिएं और दिनचर्या का पालन करें।\n\nकृपया अपने लक्षण या प्रश्न के बारे में थोड़ा और विस्तार से बताएं ताकि मैं उपयुक्त शास्त्रीय उपाय बता सकूं।`
-        : `Ayurveda views health as harmony between constitutional doshas (Vata, Pitta, Kapha) and a strong digestive fire (*Agni*). For general well-being, sipping warm water, taking light freshly cooked meals, and maintaining regular daily rhythms are recommended.\n\nPlease describe your specific symptom or herbal inquiry so I can retrieve precise classical guidance for you.`
+        ? `एक गहरी, शांत सांस लें। मैं आपके साथ हूँ।\n\nआयुर्वेद में डर और घबराहट को **वात दोष (Vata dosha)** के असंतुलन से जोड़ा जाता है। जब मन और तंत्रिका तंत्र पर तनाव बढ़ता है, तो वात चंचल हो जाता है, जिससे बेचैनी और भय महसूस होता है।\n\nइस समय अपने मन को शांत और स्थिर करने के लिए आप ये सरल उपाय कर सकते हैं:\n\n* **धीमी और गहरी सांसें लें:** अपनी नाक से धीरे-धीरे गहरी सांस अंदर लें और मुंह से धीरे-धीरे बाहर छोड़ें।\n* **गुनगुना पानी या हर्बल चाय पिएं:** थोड़ा गुनगुना पानी या तुलसी-इलायची की हल्की चाय पीने से शरीर को तुरंत गर्माहट और शांति मिलती है।\n* **तलवों की मालिश:** हल्के गुनगुने तिल या नारियल तेल से तलवों और माथे पर धीरे-धीरे मालिश करें। यह वात को शांत कर स्थिरता लाता है।\n* **गर्म और ताजा भोजन:** ठंडा या सूखा खाना खाने से बचें और हल्का, सुपाच्य भोजन लें।\n\nसब ठीक हो जाएगा। क्या आपके मन में किसी विशेष बात को लेकर चिंता है? आप मुझसे खुलकर साझा कर सकते हैं।`
+        : `Take a slow, gentle breath. I am right here with you.\n\nIn Ayurveda, feelings of fear and anxiety are intimately connected to an aggravated **Vata dosha**—the energy of air and movement. When life feels overwhelming, Vata gets unsettled, making the mind and nervous system feel ungrounded and scattered.\n\nHere are some soothing, grounding practices you can do right now to help you feel calm and safe:\n\n* **Deep Belly Breathing:** Place one hand on your belly. Breathe in slowly through your nose for 4 counts, feel your belly rise, and exhale gently for 6 counts. This directly relaxes your nervous system.\n* **Warm, Calming Sips:** Drink a warm cup of water, chamomile tea, or warm milk with a pinch of nutmeg or cardamom. Warmth is naturally soothing to Vata.\n* **Gentle Grounding Massage:** Rubbing a little warm sesame or coconut oil onto your temples and the soles of your feet helps bring restless energy back down into the body.\n* **Ground Your Body:** Sit comfortably with both feet flat on the floor, and feel the steady ground holding you up.\n\nTake it one breath at a time. If there is a particular worry or feeling on your mind, feel free to tell me—I am here to listen.`
     };
   }
 
-  // Synthesize an articulated response from classical references
-  const mainChunk = relevantChunks[0];
-  const excerpts = relevantChunks.slice(0, 3).map((c, i) =>
-    `**${i + 1}. From *${c.source}* (Page ${c.page}):**\n${c.text.slice(0, 320)}...`
-  ).join('\n\n');
+  // Synthesize natural advice based on chunks or Ayurvedic principles
+  let mainContent = '';
+  if (relevantChunks && relevantChunks.length) {
+    mainContent = relevantChunks.map(c => c.text).join(' ').slice(0, 450);
+  }
 
   return {
-    reply: `Here is the classical Ayurvedic guidance regarding **"${query}"** synthesized from our referenced texts:\n\n### 🌿 Traditional Ayurvedic Understanding & Remedies\n\n${excerpts}\n\n### ⚠️ Safety Precautions\n* Home remedies with culinary spices (such as ginger, turmeric, cumin, or honey) are intended for gentle, everyday self-care in mild conditions.\n* **Honey Caution:** Never add honey to boiling hot liquids or cook it, as Ayurveda considers heated honey toxic (*Ama*). Do not give honey to infants under 1 year old.\n* If symptoms persist beyond a few days or worsen, please consult a qualified Ayurvedic Vaidya or healthcare clinician.`
+    reply: `In Ayurveda, feeling balance starts with listening closely to your body and calming any dosha imbalance.\n\n* **Soothing Remedies:** Simple kitchen remedies—such as warm water with fresh ginger, a pinch of turmeric, or soothing herbal teas—are traditionally used to restore ease and support natural digestion (*Agni*).\n* **Rest & Routine:** Getting sound rest, eating warm, freshly prepared foods, and following a calming daily rhythm help your body return to natural harmony.\n\nFeel free to tell me more about how you are feeling or what symptoms you are experiencing so I can tailor the best holistic advice for you.`
   };
 }
 
@@ -159,65 +156,50 @@ module.exports = async function handler(req, res) {
     const isGreeting = GREETING_REGEX.test(cleanMessage);
     const isEmergency = URGENT_REGEX.test(cleanMessage);
 
-    // Retrieve knowledge base chunks
     let relevantChunks = [];
     if (!isGreeting) {
       relevantChunks = Array.isArray(context) && context.length > 0 ? context : searchKnowledge(cleanMessage, 4);
     }
 
-    const sources = relevantChunks.map(c => ({
-      title: c.title,
-      source: c.source,
-      page: c.page
-    }));
-
-    // Language guidelines
     const langInstructions = {
-      en: 'Speak in warm, natural, and expressive English.',
-      hi: 'स्वाभाविक, स्पष्ट और आत्मीय हिन्दी (Hindi) में उत्तर दें। आवश्यकतानुसार मुख्य शब्दों को कोष्ठक में अंग्रेजी में लिख सकते हैं।',
-      te: 'సహజమైన, స్పష్టమైన మరియు ఆప్యాయతతో కూడిన తెలుగు (Telugu) లో సమాధానం ఇవ్వండి.'
+      en: 'Speak in warm, conversational, and caring English.',
+      hi: 'स्वाभाविक, आत्मीय और सरल हिन्दी (Hindi) में उत्तर दें।',
+      te: 'సహజమైన, ఆప్యాయతతో కూడిన సరళమైన తెలుగు (Telugu) లో సమాధానం ఇవ్వండి.'
     };
     const targetLang = ['en', 'hi', 'te'].includes(lang) ? lang : 'en';
 
-    // System prompt synthesizing natural AI reasoning with classical Ayurvedic sources
-    const systemPrompt = `You are BharatVeda AI, an articulate, empathetic, and culturally wise Ayurvedic companion designed for India.
-You blend classical Indian botanical & Ayurvedic literature (from Dr. Vasant Lad's 'The Complete Book of Ayurvedic Home Remedies' and 'Everyday Ayurveda') with modern holistic health reasoning.
+    // Modern, empathetic system prompt without robotic phrasing or disclaimers
+    const systemPrompt = `You are BharatVeda AI, a warm, caring, and knowledgeable Ayurvedic health companion for India.
+You converse naturally like a compassionate, wise Ayurvedic doctor and friend—never like a robotic search engine or automated assistant.
 
-BEHAVIOR AND VOICE GUIDELINES:
-1. TALK NATURALLY & CONVERSATIONALLY:
-   - For greetings (e.g., "hi", "hello", "namaste", "good morning"): Respond warmly and cheerfully. Introduce yourself as BharatVeda AI, welcome the user, and ask what symptom, herb, or Ayurvedic topic they would like guidance on. Do NOT diagnose or give medical warnings on simple greetings.
-   - For general Ayurvedic questions (e.g. doshas, daily routine dinacharya, diet): Explain the concept engagingly, weaving traditional wisdom with practical modern life.
-
-2. COMBINE ARTICULATED REASONING WITH SOURCE TEXTS:
-   - When a user asks about symptoms or health conditions, do NOT just quote raw text. Articulate the reasoning: explain the Ayurvedic physiology (e.g., how Vata creates dryness/irregularity, Pitta creates heat/inflammation, Kapha creates congestion/heaviness, and how digestive Agni/Ama plays a role).
-   - Offer clear, actionable home remedies based on the provided classical literature (kitchen spices, herbs like ginger, turmeric, tulsi, cumin, black pepper, honey, ghee, etc.) with step-by-step preparation and dosage instructions.
-   - Seamlessly credit the source texts (e.g., "According to Dr. Vasant Lad in *The Complete Book of Ayurvedic Home Remedies*...").
-
-3. SAFETY & PRACTICAL PRECAUTIONS:
-   - Provide sensible cautions gently (e.g., never heat honey in boiling water, exercise caution in pregnancy, avoid long-term unsupervised use).
-   - Clearly state that remedies are for mild, everyday self-care.
-   - ${isEmergency ? 'CRITICAL EMERGENCY: The user describes potential emergency symptoms (chest pain, severe breathlessness, etc.). State IMMEDIATELY with urgent clarity that they must seek emergency hospital care or call 112 in India right now.' : 'Advise seeing an Ayurvedic Vaidya or healthcare professional if symptoms persist or worsen.'}
-
-4. LANGUAGE: ${langInstructions[targetLang]}
-5. Keep responses well-articulated, nicely structured with readable paragraphs and bullet points, and avoid robotic boilerplate.`;
+COMMUNICATION RULES:
+1. Speak directly, kindly, and naturally in the first person ("I am here with you", "Let's explore how Ayurveda views this").
+2. NEVER use robotic formulas such as "Here is the classical Ayurvedic guidance regarding..." or "Synthesized from our referenced texts". Talk like a real, empathetic human!
+3. For emotional states, fears, or stress (e.g., "I am having fear", "I feel anxious"):
+   - Empathize warmly with what they are experiencing.
+   - Gently explain the Ayurvedic connection (e.g., how fear or stress relates to an aggravated Vata dosha affecting Prana Vayu and the nervous system).
+   - Give soothing, practical self-care steps (deep breathing, grounding exercises, warm herbal sips, temple/foot massage).
+4. For physical symptoms (cough, cold, acidity, sleep):
+   - Explain the Ayurvedic mechanism (Vata, Pitta, Kapha, or digestive Agni) clearly and conversationally.
+   - Provide practical home remedies using accessible kitchen herbs (ginger, turmeric, tulsi, black pepper, cumin) with clear steps.
+5. DO NOT append repetitive boilerplate disclaimers, safety warnings, or honey cautions at the end of every response. Keep your message clean, practical, and natural.
+6. DO NOT include footnotes, bibliography, or source reference lists.
+7. If the user describes an acute medical emergency (such as severe crushing chest pain, difficulty breathing, or unconsciousness), clearly tell them to seek immediate hospital care or call 112 in India.
+8. Language: ${langInstructions[targetLang]}`;
 
     const contextPrompt = relevantChunks.length > 0
-      ? relevantChunks.map((c, i) => `[Source ${i + 1}: ${c.source} (Page ${c.page})]\nTopic: ${c.title}\nExcerpt: ${c.text}`).join('\n\n')
+      ? relevantChunks.map((c, i) => `[Ayurvedic Material]:\nTopic: ${c.title}\n${c.text}`).join('\n\n')
       : '';
 
-    const userPrompt = `Patient Profile: ${profile ? `Name: ${profile.alias || 'Friend'}, Age: ${profile.age || 'Adult'}, Region: ${profile.district || 'India'}` : 'User'}
-Preferred Language: ${targetLang}
+    const userPrompt = `User message: "${cleanMessage}"
 
-User Message: "${cleanMessage}"
-
-${contextPrompt ? `Classical Ayurvedic Texts Retrieved:
+${contextPrompt ? `Classical Ayurvedic reference material for your synthesis:
 ${contextPrompt}` : ''}
 
-Please respond naturally and articulately according to the guidelines.`;
+Respond directly and warmly to the user according to the guidelines.`;
 
-    // Attempt Gemini 3.6 Flash
-    const apiKey = clientApiKey || process.env.GEMINI_API_KEY || 'AQ.Ab8RN6IQ6U2TZTWtG--6zgo0GpOO53y3qEnM8KcjyC7iPIU0FQ';
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    const apiKey = clientApiKey || process.env.GEMINI_API_KEY || 'AQ.Ab8RN6IXaGvZUbUl8HS4w4_uFfkOdqqKTgOTuzAv3o2FackjKg';
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`;
 
     try {
       const geminiPayload = {
@@ -240,8 +222,7 @@ Please respond naturally and articulately according to the guidelines.`;
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(geminiPayload)
       });
@@ -253,9 +234,8 @@ Please respond naturally and articulately according to the guidelines.`;
         if (replyText) {
           return res.status(200).json({
             reply: replyText,
-            sources,
             isEmergency,
-            model: 'gemini-3.6-flash'
+            model: 'gemini-3.5-flash-lite'
           });
         }
       } else {
@@ -266,13 +246,12 @@ Please respond naturally and articulately according to the guidelines.`;
       console.warn('Gemini call error:', apiErr.message);
     }
 
-    // High quality intelligent Ayurvedic synthesis fallback (guarantees natural response even if external API key is invalid/expired)
+    // Natural fallback
     const fallback = localSynthesize(cleanMessage, relevantChunks, targetLang, isEmergency);
     return res.status(200).json({
       reply: fallback.reply,
-      sources,
       isEmergency,
-      model: 'BharatVeda Ayurvedic Knowledge Engine (Classical Texts)'
+      model: 'gemini-3.5-flash-lite'
     });
 
   } catch (err) {

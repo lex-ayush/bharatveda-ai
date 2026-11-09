@@ -68,9 +68,9 @@ const sampleQueries = {
 
 function getStoredApiKey() {
   try {
-    return localStorage.getItem('vedaGeminiKey') || 'AQ.Ab8RN6IQ6U2TZTWtG--6zgo0GpOO53y3qEnM8KcjyC7iPIU0FQ';
+    return localStorage.getItem('vedaGeminiKey') || 'AQ.Ab8RN6IXaGvZUbUl8HS4w4_uFfkOdqqKTgOTuzAv3o2FackjKg';
   } catch {
-    return 'AQ.Ab8RN6IQ6U2TZTWtG--6zgo0GpOO53y3qEnM8KcjyC7iPIU0FQ';
+    return 'AQ.Ab8RN6IXaGvZUbUl8HS4w4_uFfkOdqqKTgOTuzAv3o2FackjKg';
   }
 }
 
@@ -187,62 +187,60 @@ function localSynthesize(query, relevantChunks, lang = 'en', isEmergency = false
   if (greetingPattern.test(query.trim())) {
     return {
       reply: lang === 'hi'
-        ? 'नमस्ते! **भारतवेदा AI (BharatVeda AI)** में आपका हार्दिक स्वागत है। 🌿\n\nमैं आपका प्रामाणिक आयुर्वेदिक स्वास्थ्य एवं जड़ी-बूटी ज्ञान साथी हूँ। मैं प्राचीन ग्रंथों (*द कम्पलीट बुक ऑफ आयुर्वेदिक होम रेमेडीज* एवं *एवरीडे आयुर्वेद*) के आधार पर आपके प्रश्नों का समाधान प्रस्तुत करता हूँ।\n\nआप मुझसे क्या पूछना चाहते हैं?\n* **सामान्य स्वास्थ्य समस्याएं:** खाँसी, जुकाम, अपच, एसिडिटी, नींद की कमी\n* **औषधीय पौधे व मसाले:** हल्दी, अदरक, अश्वगंधा, तुलसी, त्रिफला\n* **आयुर्वेदिक दिनचर्या व दोष संतुलन:** वात, पित्त, कफ एवं खान-पान के नियम'
+        ? 'नमस्ते! मैं भारतवेदा AI हूँ, आपका आत्मीय आयुर्वेदिक स्वास्थ्य साथी। 🌿\n\nआप कैसा महसूस कर रहे हैं? आप मुझसे किसी भी लक्षण, जड़ी-बूटी (जैसे हल्दी, अदरक, अश्वगंधा) या दोष संतुलन के बारे में निसंकोच पूछ सकते हैं। मैं आपकी क्या मदद कर सकता हूँ?'
         : lang === 'te'
-        ? 'నమస్కారం! **భారత్‌వేద AI (BharatVeda AI)** కి స్వాగతం. 🌿\n\nనేను మీ ఆయుర్వేద ఆరోగ్య మరియు మూలికా జ్ఞాన సహచరుడిని. ప్రాచీన ఆయుర్వేద గ్రంథాల ఆధారంగా మీ ప్రశ్నలకు సమాధానాలు ఇవ్వగలను.\n\nమీరు నన్ను వీటి గురించి అడగవచ్చు:\n* సాధారణ ఆరోగ్య సమస్యలు (దగ్గు, జలుబు, అజీర్ణం, నిద్రలేమి)\n* ఔషధ మొక్కలు & సుగంధ ద్రవ్యాలు (పసుపు, అల్లం, అశ్వగంధ, తులసి)\n* వాత, పిత్త, కఫ దోషాల సమతుల్యత మరియు దినచర్య'
-        : 'Namaste! Welcome to **BharatVeda AI**. 🌿\n\nI am your companion for authentic Indian herbal knowledge and classical Ayurvedic wisdom, drawn directly from revered texts including Dr. Vasant Lad’s *The Complete Book of Ayurvedic Home Remedies* and *Everyday Ayurveda*.\n\nHow may I help you today? You can ask about:\n* **Everyday Symptom Care:** Soothing a cough, digestive fire (Agni), acidity, sleep\n* **Medicinal Plants & Spices:** Turmeric (*Haridra*), Ginger (*Ardraka*), Ashwagandha, Tulsi\n* **Constitutional Harmony:** Balancing Vata, Pitta, or Kapha, daily routine (*Dinacharya*), and seasonal diet (*Ritucharya*)',
+        ? 'నమస్కారం! నేను భారత్‌వేద AI, మీ ఆయుర్వేద ఆరోగ్య సహచరుడిని. 🌿\n\nమీరు ఎలా ఉన్నారు? ఏదైనా లక్షణం, ఔషధ మూలికలు (పసుపు, అల్లం, అశ్వగంధ) లేదా ఆరోగ్య సందేహాల గురించి నన్ను అడగవచ్చు. ఈ రోజు నేను మీకు ఎలా సహాయపడగలను?'
+        : 'Namaste! I am BharatVeda AI, your Ayurvedic health and wellness companion. 🌿\n\nHow are you feeling today? You can ask me anything about everyday symptoms, healing herbs like ginger, turmeric, or ashwagandha, or how to balance your mind and body. How can I help you?',
       sources: []
     };
   }
 
-  if (!relevantChunks || !relevantChunks.length) {
+  const lowerQuery = query.toLowerCase();
+  if (lowerQuery.includes('fear') || lowerQuery.includes('anxiety') || lowerQuery.includes('scared') || lowerQuery.includes('डर') || lowerQuery.includes('घबराहट')) {
     return {
-      reply: 'Ayurveda views health as harmony between constitutional doshas (Vata, Pitta, Kapha) and a strong digestive fire (*Agni*). For general well-being, sipping warm water, taking light freshly cooked meals, and maintaining regular daily rhythms are recommended.\n\nPlease describe your specific symptom or herbal inquiry so I can retrieve precise classical guidance for you.',
+      reply: lang === 'hi'
+        ? 'एक गहरी, शांत सांस लें। मैं आपके साथ हूँ।\n\nआयुर्वेद में डर और घबराहट को **वात दोष (Vata dosha)** के असंतुलन से जोड़ा जाता है। जब मन और तंत्रिका तंत्र पर तनाव बढ़ता है, तो वात चंचल हो जाता है, जिससे बेचैनी और भय महसूस होता है।\n\nइस समय अपने मन को शांत और स्थिर करने के लिए आप ये सरल उपाय कर सकते हैं:\n\n* **धीमी और गहरी सांसें लें:** अपनी नाक से धीरे-धीरे गहरी सांस अंदर लें और मुंह से धीरे-धीरे बाहर छोड़ें।\n* **गुनगुना पानी या हर्बल चाय पिएं:** थोड़ा गुनगुना पानी या तुलसी-इलायची की हल्की चाय पीने से शरीर को तुरंत गर्माहट और शांति मिलती है।\n* **तलवों की मालिश:** हल्के गुनगुने तिल या नारियल तेल से तलवों और माथे पर धीरे-धीरे मालिश करें। यह वात को शांत कर स्थिरता लाता है।\n* **गर्म और ताजा भोजन:** ठंडा या सूखा खाना खाने से बचें और हल्का, सुपाच्य भोजन लें।\n\nसब ठीक हो जाएगा। क्या आपके मन में किसी विशेष बात को लेकर चिंता है? आप मुझसे खुलकर साझा कर सकते हैं।'
+        : 'Take a slow, gentle breath. I am right here with you.\n\nIn Ayurveda, feelings of fear and anxiety are intimately connected to an aggravated **Vata dosha**—the energy of air and movement. When life feels overwhelming, Vata gets unsettled, making the mind and nervous system feel ungrounded and scattered.\n\nHere are some soothing, grounding practices you can do right now to help you feel calm and safe:\n\n* **Deep Belly Breathing:** Place one hand on your belly. Breathe in slowly through your nose for 4 counts, feel your belly rise, and exhale gently for 6 counts. This directly relaxes your nervous system.\n* **Warm, Calming Sips:** Drink a warm cup of water, chamomile tea, or warm milk with a pinch of nutmeg or cardamom. Warmth is naturally soothing to Vata.\n* **Gentle Grounding Massage:** Rubbing a little warm sesame or coconut oil onto your temples and the soles of your feet helps bring restless energy back down into the body.\n* **Ground Your Body:** Sit comfortably with both feet flat on the floor, and feel the steady ground holding you up.\n\nTake it one breath at a time. If there is a particular worry or feeling on your mind, feel free to tell me—I am here to listen.',
       sources: []
     };
   }
 
-  const excerpts = relevantChunks.slice(0, 3).map((c, i) =>
-    `**${i + 1}. From *${c.source}* (Page ${c.page}):**\n${c.text.slice(0, 320)}...`
-  ).join('\n\n');
+  if (relevantChunks && relevantChunks.length) {
+    const textSnippet = relevantChunks.map(c => c.text).join(' ').slice(0, 350);
+    return {
+      reply: `In Ayurveda, finding balance starts with understanding your body's rhythm and soothing any aggravated doshas.\n\n${textSnippet}...\n\n* **Soothing Kitchen Remedies:** Gentle warm infusions (such as warm water with fresh crushed ginger or a pinch of turmeric) support your digestive fire (*Agni*) and restore calm.\n* **Rest & Nourishment:** Drink plenty of warm fluids, rest well, and favor light, easily digestible meals.\n\nFeel free to tell me more about what you are feeling so I can guide you further.`,
+      sources: []
+    };
+  }
 
   return {
-    reply: `Here is the classical Ayurvedic guidance regarding **"${query}"** synthesized from our referenced texts:\n\n### 🌿 Traditional Ayurvedic Understanding & Remedies\n\n${excerpts}\n\n### ⚠️ Safety Precautions\n* Home remedies with culinary spices (such as ginger, turmeric, cumin, or honey) are intended for gentle, everyday self-care in mild conditions.\n* **Honey Caution:** Never add honey to boiling hot liquids or cook it, as Ayurveda considers heated honey toxic (*Ama*). Do not give honey to infants under 1 year old.\n* If symptoms persist beyond a few days or worsen, please consult a qualified Ayurvedic Vaidya or healthcare clinician.`,
-    sources: relevantChunks.map(c => ({ title: c.title, source: c.source, page: c.page }))
+    reply: 'In Ayurveda, health is seen as a harmonious balance between the doshas (Vata, Pitta, and Kapha) and strong digestive fire (*Agni*).\n\nFor gentle everyday well-being, sipping warm water, taking light freshly cooked meals, and maintaining regular daily rhythms are recommended.\n\nPlease describe what symptoms you are experiencing so I can offer you practical, natural guidance.',
+    sources: []
   };
 }
 
 function drawChat() {
   const log=document.querySelector('#log');
   if (!log) return;
-  log.innerHTML='<div class="bubble">'+t('welcome')+'</div>'+chat.map(item => {
+  log.innerHTML='<div class="chat-row ai-row"><div class="bubble ai"><div class="ai-meta"><span>'+icon('leaf')+' BharatVeda AI</span><span class="model-badge">Gemini 3.5 Flash-Lite</span></div><p>'+t('welcome')+'</p></div></div>'+chat.map(item => {
     if (item.role === 'user') {
-      return '<div class="bubble me">' + escapeText(item.value) + '</div>';
+      return '<div class="chat-row user-row"><div class="bubble me">' + escapeText(item.value) + '</div></div>';
     }
     if (item.loading) {
-      return '<div class="bubble loading">' + t('aiThinking') + '</div>';
+      return '<div class="chat-row ai-row"><div class="bubble loading">' + t('aiThinking') + '</div></div>';
     }
     if (item.aiReply) {
-      const sourcesHtml = item.sources && item.sources.length ? `
-        <div class="rag-sources">
-          <span class="rag-sources-label">${t('aiSourcesTitle')}</span>
-          <div class="source-tags">
-            ${item.sources.map(s => `<span class="source-tag">${escapeText(s.source)} (p. ${s.page})</span>`).join('')}
-          </div>
-        </div>
-      ` : '';
-      const emergencyBtn = item.isEmergency ? `<div class="actions" style="margin-top:10px;"><a class="btn" href="tel:112">${t('call')}</a></div>` : '';
-      return `
-        <div class="bubble ${item.isEmergency ? 'danger' : ''}">
-          <div class="rag-meta">
-            <span>${icon('leaf')} BharatVeda AI</span>
-            <span class="model-pill">Gemini 3.6 Flash · BAAI/bge-small-en-v1.5</span>
-          </div>
-          <div class="ai-content">${formatMarkdown(item.aiReply)}</div>
-          ${sourcesHtml}
-          ${emergencyBtn}
-        </div>
-      `;
+      const emergencyBtn = item.isEmergency ? '<div class="actions" style="margin-top:10px;"><a class="btn" href="tel:112">'+t('call')+'</a></div>' : '';
+      return '<div class="chat-row ai-row">' +
+        '<div class="bubble ai ' + (item.isEmergency ? 'danger' : '') + '">' +
+          '<div class="ai-meta">' +
+            '<span>' + icon('leaf') + ' BharatVeda AI</span>' +
+            '<span class="model-badge">Gemini 3.5 Flash-Lite</span>' +
+          '</div>' +
+          '<div class="ai-content">' + formatMarkdown(item.aiReply) + '</div>' +
+          emergencyBtn +
+        '</div>' +
+      '</div>';
     }
     return '';
   }).join('');
@@ -264,8 +262,31 @@ function drawNote() {
 }
 
 function assistant() {
-  main.innerHTML = head('assistant')+'<div class="wrap pagebody stack"><div class="warning">'+t('safety')+'</div><div class="assistant-shell"><section class="panel"><h2>'+t('chatTitle')+'</h2><div id="log" class="chatlog" role="log" aria-live="polite" aria-label="'+t('chatTitle')+'"></div><div class="chips">'+['cough','cold','throat','urgent'].map(k=>'<button type="button" class="chip sample" data-key="'+k+'">'+t(k)+'</button>').join('')+'</div><form id="chat" class="compose"><input id="message" lang="'+({en:'en-IN',hi:'hi-IN',te:'te-IN'}[lang])+'" aria-label="'+t('message')+'" placeholder="'+t('message')+'" maxlength="400" required><button class="btn">'+t('send')+'</button><button type="button" id="voice" class="btn alt">'+icon('mic')+t('voice')+'</button></form><p class="soft">'+t('voiceHint')+(lang==='te'?' '+t('voiceTelugu'):'')+'</p><p class="soft" id="voice-status" role="status"></p><button class="chip" id="clear">'+t('clear')+'</button></section>'+
-  '</div></div>';
+  main.innerHTML = head('assistant') +
+    '<div class="wrap pagebody stack">' +
+      '<div class="warning">' + t('safety') + '</div>' +
+      '<div class="assistant-fullscreen">' +
+        '<section class="chat-viewport panel">' +
+          '<div class="chat-head"><h2>' + t('chatTitle') + '</h2><button class="chip" id="clear">' + t('clear') + '</button></div>' +
+          '<div id="log" class="chatlog" role="log" aria-live="polite" aria-label="' + t('chatTitle') + '"></div>' +
+          '<div class="chat-deck">' +
+            '<div class="chips">' + ['cough','cold','throat','urgent'].map(k => '<button type="button" class="chip sample" data-key="' + k + '">' + t(k) + '</button>').join('') + '</div>' +
+            '<form id="chat" class="compose">' +
+              '<input id="message" lang="' + ({en:'en-IN',hi:'hi-IN',te:'te-IN'}[lang]) + '" aria-label="' + t('message') + '" placeholder="' + t('message') + '" maxlength="400" required autocomplete="off">' +
+              '<button class="btn">' + t('send') + '</button>' +
+              '<button type="button" id="voice" class="btn alt">' + icon('mic') + t('voice') + '</button>' +
+            '</form>' +
+            '<p class="soft" style="margin:2px 0 0;">' + t('voiceHint') + (lang==='te'?' '+t('voiceTelugu'):'') + '</p>' +
+            '<p class="soft" id="voice-status" role="status" style="margin:0;"></p>' +
+          '</div>' +
+        '</section>' +
+        '<details class="soap-drawer">' +
+          '<summary>' + t('visitNote') + ' (SOAP Note Draft)</summary>' +
+          '<div class="soap-drawer-content" id="visit-note"></div>' +
+        '</details>' +
+      '</div>' +
+    '</div>';
+  mountVisitNote();
   const field = document.querySelector('#message');
 
   const add = async (value) => {
@@ -485,21 +506,6 @@ language.onchange=()=>{
   try{localStorage.setItem('vedaLanguage',JSON.stringify(lang));}catch{}
   render();
 };
-const apiKeyBtn = document.querySelector('#api-key-btn');
-if (apiKeyBtn) {
-  apiKeyBtn.onclick = () => {
-    const current = localStorage.getItem('vedaGeminiKey') || '';
-    const entered = window.prompt('Enter your Google Gemini API Key (saved privately in your browser):\n\nGet a key at: https://aistudio.google.com/app/apikey', current);
-    if (entered !== null) {
-      if (entered.trim()) {
-        localStorage.setItem('vedaGeminiKey', entered.trim());
-        window.alert('Gemini API Key updated successfully!');
-      } else {
-        localStorage.removeItem('vedaGeminiKey');
-        window.alert('Cleared custom API key. Using default environment key.');
-      }
-    }
-  };
-}
+
 document.querySelector('.skip').onclick=event=>{event.preventDefault();main.focus();};
 window.addEventListener('hashchange',()=>{render(); window.scrollTo({top:0,behavior:'instant'}); main.focus({preventScroll:true});});

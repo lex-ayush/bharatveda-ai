@@ -1,14 +1,14 @@
 # 🌿 BharatVeda AI (भारतवेदा AI)
 
-> **Accessible Indian Herbal & Ayurvedic Knowledge with RAG and Cloud AI (`gemini-3.6-flash`)**
+> **Accessible Indian Herbal & Ayurvedic Knowledge with RAG and Cloud AI (`gemini-3.5-flash-lite`)**
 
-BharatVeda AI is an educational healthcare and botanical intelligence web application tailored for India. It connects users with authentic, classical Ayurvedic knowledge and home self-care remedies through a Retrieval-Augmented Generation (RAG) AI assistant powered by Google’s **Gemini 3.6 Flash** and **BAAI/bge-small-en-v1.5** vector embeddings.
+BharatVeda AI is an educational healthcare and botanical intelligence web application tailored for India. It connects users with authentic, classical Ayurvedic knowledge and home self-care remedies through a Retrieval-Augmented Generation (RAG) AI assistant powered by Google’s **Gemini 3.5 Flash-Lite** and **BAAI/bge-small-en-v1.5** vector embeddings.
 
 ---
 
 ## 🚀 Key Features
 
-- **⚡ Cloud RAG with `gemini-3.6-flash`**:
+- **⚡ Cloud RAG with `gemini-3.5-flash-lite`**:
   Answers health inquiries using context retrieved directly from classical literature:
   - *The Complete Book of Ayurvedic Home Remedies* (Dr. Vasant Lad)
   - *Everyday Ayurveda – A Practical Guide to Healthy Living*
@@ -64,7 +64,7 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
    ```bash
    git init
    git add .
-   git commit -m "Initial commit of BharatVeda AI with RAG and Gemini 3.6 Flash"
+   git commit -m "Initial commit of BharatVeda AI with RAG and Gemini 3.5 Flash-Lite"
    git branch -M main
    git remote add origin https://github.com/<your-username>/BharatVeda-AI.git
    git push -u origin main
@@ -72,7 +72,7 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 2. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
 3. Import your **BharatVeda-AI** repository.
 4. (Optional) Add your Environment Variable:
-   - `GEMINI_API_KEY`: `AQ.Ab8RN6IQ6U2TZTWtG--6zgo0GpOO53y3qEnM8KcjyC7iPIU0FQ`
+   - `GEMINI_API_KEY`: `AQ.Ab8RN6IXaGvZUbUl8HS4w4_uFfkOdqqKTgOTuzAv3o2FackjKg`
 5. Click **Deploy**. Vercel will finish in under 30 seconds!
 
 ### Option 2: Via Vercel CLI
@@ -87,7 +87,7 @@ vercel
 
 ```
 ├── api/
-│   └── chat.js               # Serverless function: RAG retrieval & Gemini 3.6 Flash
+│   └── chat.js               # Serverless function: RAG retrieval & Gemini 3.5 Flash-Lite
 ├── docs/                     # Source Ayurvedic PDFs
 ├── knowledge_base.json       # Precomputed BAAI/bge-small-en-v1.5 embeddings (~3.8 MB)
 ├── index.html                # Main single-page web app
