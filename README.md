@@ -1,3 +1,5 @@
+#### **⚠️THE WEBSITE DEPLOYMENT IS CURRENTLY PAUSED RIGHT NOW**
+
 # 🌿 BharatVeda AI (भारतवेदा AI)
 
 > **Accessible Indian Herbal & Ayurvedic Knowledge with RAG and Cloud AI (`gemini-3.5-flash-lite`)**
@@ -5,7 +7,6 @@
 BharatVeda AI is an educational healthcare and botanical intelligence web application tailored for India. It connects users with authentic, classical Ayurvedic knowledge and home self-care remedies through a Retrieval-Augmented Generation (RAG) AI assistant powered by Google’s **Gemini 3.5 Flash-Lite** and **BAAI/bge-small-en-v1.5** vector embeddings.
 
 ---
-#### THE WEBSITE DEPLOYMENT IS CURRENTLY PAUSED RIGHT NOW.
 
 ## 🚀 Key Features
 
